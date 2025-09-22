@@ -1,7 +1,7 @@
 package framework
 
 import (
-	"github.com/flaboy/aira/aira-web/pkg/config"
+	"github.com/flaboy/aira-web/pkg/config"
 )
 
 func Start(cfg *config.FrameworkConfig) error {

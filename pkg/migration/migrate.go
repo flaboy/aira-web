@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/flaboy/aira/aira-core/pkg/database"
-	"github.com/flaboy/aira/aira-core/pkg/redis"
-	"github.com/flaboy/aira/aira-web/pkg/config"
+	"github.com/flaboy/aira-core/pkg/database"
+	"github.com/flaboy/aira-core/pkg/redis"
+	"github.com/flaboy/aira-web/pkg/config"
 )
 
 func init() {

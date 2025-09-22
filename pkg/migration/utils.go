@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"github.com/flaboy/aira/aira-core/pkg/database"
+	"github.com/flaboy/aira-core/pkg/database"
 	"gorm.io/gorm"
 )
 

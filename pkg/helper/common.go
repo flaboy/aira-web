@@ -3,7 +3,7 @@ package helper
 import (
 	"strings"
 
-	"github.com/flaboy/aira/aira-web/pkg/config"
+	"github.com/flaboy/aira-web/pkg/config"
 	"github.com/flaboy/pin"
 )
 

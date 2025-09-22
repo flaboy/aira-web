@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/flaboy/aira/aira-web/pkg/openapi/interfaces"
+	"github.com/flaboy/aira-web/pkg/openapi/interfaces"
 
 	"github.com/flaboy/pin"
 	"github.com/flaboy/pin/usererrors"

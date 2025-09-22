@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/flaboy/aira/aira-web/pkg/openapi/interfaces"
+	"github.com/flaboy/aira-web/pkg/openapi/interfaces"
 
 	"github.com/flaboy/pin"
 	"github.com/gin-gonic/gin"

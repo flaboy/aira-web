@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/flaboy/aira/aira-web/pkg/auth"
+	"github.com/flaboy/aira-web/pkg/auth"
 	"google.golang.org/api/idtoken"
 )
 

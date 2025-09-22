@@ -1,8 +1,8 @@
 package openapi
 
 import (
-	"github.com/flaboy/aira/aira-web/pkg/openapi/interfaces"
-	"github.com/flaboy/aira/aira-web/pkg/routes"
+	"github.com/flaboy/aira-web/pkg/openapi/interfaces"
+	"github.com/flaboy/aira-web/pkg/routes"
 
 	"github.com/flaboy/pin"
 	"github.com/flaboy/pin/usererrors"

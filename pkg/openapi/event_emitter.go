@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/flaboy/aira/aira-web/pkg/openapi/interfaces"
+	"github.com/flaboy/aira-web/pkg/openapi/interfaces"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"

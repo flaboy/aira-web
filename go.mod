@@ -1,4 +1,4 @@
-module github.com/flaboy/aira/aira-web
+module github.com/flaboy/aira-web
 
 go 1.24.4
 
@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.36.4
 	github.com/aws/aws-sdk-go-v2/config v1.29.16
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.7
-	github.com/flaboy/aira/aira-core v0.0.0
+	github.com/flaboy/aira-core v0.0.0
 	github.com/flaboy/pin v0.9.8
 	github.com/gin-gonic/gin v1.9.1
 	google.golang.org/api v0.162.0
@@ -78,6 +78,6 @@ require (
 	gorm.io/driver/mysql v1.6.0 // indirect
 )
 
-replace github.com/flaboy/aira/aira-core => ../aira-core
+replace github.com/flaboy/aira-core => ../aira-core
 
-replace github.com/flaboy/aira/aira-shop => ../aira-shop
+replace github.com/flaboy/aira-shop => ../aira-shop

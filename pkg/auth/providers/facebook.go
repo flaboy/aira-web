@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/flaboy/aira/aira-web/pkg/auth"
+	"github.com/flaboy/aira-web/pkg/auth"
 )
 
 // FacebookProvider Facebook OAuth提供商

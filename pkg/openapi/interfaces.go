@@ -1,6 +1,6 @@
 package openapi
 
-import "github.com/flaboy/aira/aira-web/pkg/openapi/interfaces"
+import "github.com/flaboy/aira-web/pkg/openapi/interfaces"
 
 // 全局仓储实例
 var (

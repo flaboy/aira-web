@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/flaboy/aira/aira-core/pkg/database"
-	"github.com/flaboy/aira/aira-web/pkg/migration"
+	"github.com/flaboy/aira-core/pkg/database"
+	"github.com/flaboy/aira-web/pkg/migration"
 )
 
 type MigrationLogs struct {
