@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -116,7 +116,7 @@ func (o *Routes) RegisterTo(parent gin.IRoutes) {
 		}
 	}
 	for _, handle := range o.handles {
-		log.Printf("Registering route %s %s", handle.method, handle.path)
+		slog.Info("Registering route", "method", handle.method, "path", handle.path)
 		if handle.method == "Any" {
 			parent.Any(handle.path, handle.handlers...)
 		} else {

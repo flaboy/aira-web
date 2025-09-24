@@ -2,7 +2,7 @@ package migration
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"time"
 )
@@ -69,7 +69,7 @@ func (m *MigrationManager) Register(namespace, name string, fn MigrationFunc) {
 }
 
 func (m *MigrationManager) RunMigrations() error {
-	log.Println("RunMigrations", len(m.migrations))
+	slog.Info("RunMigrations", "count", len(m.migrations))
 	const lockKey = "migrate_lock"
 	const lockTimeout = 60
 
@@ -105,7 +105,7 @@ func (m *MigrationManager) RunMigrations() error {
 
 	// 对于新环境的 namespace，将所有迁移标记为跳过
 	for _, item := range m.migrations {
-		log.Println(item.Name, item.Namespace)
+		slog.Info("Processing migration", "name", item.Name, "namespace", item.Namespace)
 		key := fmt.Sprintf("%s:%s", item.Namespace, item.Name)
 
 		// 如果该 namespace 没有任何记录，说明是新环境

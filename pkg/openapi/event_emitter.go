@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -26,19 +26,19 @@ type EventPayload struct {
 func (e *Endpoint) EmitEvent(code EventCode, data interface{}) error {
 	// 检查仓储是否已初始化
 	if eventRepo == nil {
-		log.Printf("Event repository not initialized")
+		slog.Warn("Event repository not initialized")
 		return nil
 	}
 
 	// 查找订阅此事件的应用
 	subscriptions, err := eventRepo.FindByEventCode(string(code))
 	if err != nil {
-		log.Printf("Failed to find event subscriptions: %v", err)
+		slog.Error("Failed to find event subscriptions", "error", err)
 		return err
 	}
 
 	if len(subscriptions) == 0 {
-		log.Printf("No subscriptions found for event: %s", code)
+		slog.Info("No subscriptions found for event", "event", code)
 		return nil
 	}
 
@@ -81,17 +81,17 @@ func (e *Endpoint) sendEventNotification(app interfaces.ApplicationInfo, payload
 	case "webhook":
 		if app.GetNotifyURL() != "" {
 			if err := e.sendWebhook(app.GetNotifyURL(), payload); err != nil {
-				log.Printf("Failed to send webhook to %s: %v", app.GetNotifyURL(), err)
+				slog.Error("Failed to send webhook", "url", app.GetNotifyURL(), "error", err)
 			}
 		}
 	case "sqs":
 		if app.GetNotifyURL() != "" {
 			if err := e.sendSQS(app.GetNotifyURL(), payload); err != nil {
-				log.Printf("Failed to send SQS notification to %s: %v", app.GetNotifyURL(), err)
+				slog.Error("Failed to send SQS notification", "url", app.GetNotifyURL(), "error", err)
 			}
 		}
 	default:
-		log.Printf("Unknown notify type: %s for application %d", app.GetNotifyType(), app.GetID())
+		slog.Warn("Unknown notify type", "type", app.GetNotifyType(), "appId", app.GetID())
 	}
 }
 
@@ -112,7 +112,7 @@ func (e *Endpoint) sendWebhook(url string, payload EventPayload) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		log.Printf("Webhook returned non-success status: %d", resp.StatusCode)
+		slog.Warn("Webhook returned non-success status", "statusCode", resp.StatusCode)
 	}
 
 	return nil
@@ -128,9 +128,9 @@ func (e *Endpoint) sendSQS(sqsURL string, payload EventPayload) error {
 	// 创建AWS配置
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		log.Printf("Failed to load AWS config, falling back to mock: %v", err)
+		slog.Warn("Failed to load AWS config, falling back to mock", "error", err)
 		// 如果AWS配置失败，回退到日志记录
-		log.Printf("SQS notification sent to: %s with payload: %s", sqsURL, string(jsonData))
+		slog.Info("SQS notification sent", "url", sqsURL, "payload", string(jsonData))
 		return nil
 	}
 
@@ -157,6 +157,6 @@ func (e *Endpoint) sendSQS(sqsURL string, payload EventPayload) error {
 		return fmt.Errorf("failed to send SQS message: %v", err)
 	}
 
-	log.Printf("SQS notification successfully sent to: %s", sqsURL)
+	slog.Info("SQS notification successfully sent", "url", sqsURL)
 	return nil
 }
