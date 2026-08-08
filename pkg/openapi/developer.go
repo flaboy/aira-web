@@ -131,14 +131,15 @@ func (e *Endpoint) handleGetApps(c *pin.Context, service interfaces.DeveloperSer
 
 func (e *Endpoint) handleCreateApp(c *pin.Context, service interfaces.DeveloperService, userID uint) error {
 	var form struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
+		Name              string `json:"name" binding:"required"`
+		Description       string `json:"description"`
+		BusinessProfileID string `json:"business_profile_id"`
 	}
 	if err := c.BindJSON(&form); err != nil {
 		return usererrors.New("Invalid request body")
 	}
 
-	app, err := service.CreateApplication(userID, form.Name, form.Description)
+	app, err := service.CreateApplication(userID, form.Name, form.Description, form.BusinessProfileID)
 	if err != nil {
 		return usererrors.New("Failed to create application: " + err.Error())
 	}
@@ -155,15 +156,16 @@ func (e *Endpoint) handleGetApp(c *pin.Context, service interfaces.DeveloperServ
 
 func (e *Endpoint) handleUpdateApp(c *pin.Context, service interfaces.DeveloperService, userID uint, appID string) error {
 	var form struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		Status      string `json:"status"`
+		Name              string `json:"name" binding:"required"`
+		Description       string `json:"description"`
+		Status            string `json:"status"`
+		BusinessProfileID string `json:"business_profile_id"`
 	}
 	if err := c.BindJSON(&form); err != nil {
 		return usererrors.New("Invalid request body")
 	}
 
-	app, err := service.UpdateApplication(appID, userID, form.Name, form.Description, form.Status)
+	app, err := service.UpdateApplication(appID, userID, form.Name, form.Description, form.Status, form.BusinessProfileID)
 	if err != nil {
 		return usererrors.New("Failed to update application: " + err.Error())
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/flaboy/pin"
 	"github.com/flaboy/pin/usererrors"
+	"github.com/gin-gonic/gin"
 )
 
 type EventCode string
@@ -48,6 +49,12 @@ func GetEndpoint(name interfaces.EndpointType) *Endpoint {
 	return ep
 }
 
+func findEndpoint(name interfaces.EndpointType) *Endpoint {
+	endpointsMutex.RLock()
+	defer endpointsMutex.RUnlock()
+	return endpoints[name]
+}
+
 func (e *Endpoint) AddEvent(event EventInfo) {
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
@@ -69,6 +76,8 @@ type ApiRouter struct {
 	Errors          []*usererrors.Error
 	RequestExample  interface{} // 请求示例
 	ResponseExample interface{} // 响应示例
+	Scope           string
+	Parameters      []ApiParameter
 }
 
 // ApiBuilder 用于支持链式调用的API构建器
@@ -96,6 +105,22 @@ func (b *ApiBuilder) WithErrors(errors ...*usererrors.Error) *ApiBuilder {
 func (b *ApiBuilder) WithResponseExample(example interface{}) *ApiBuilder {
 	if b.registeredRouter != nil {
 		b.registeredRouter.ResponseExample = example
+	}
+	return b
+}
+
+// WithScope 设置调用接口所需的应用权限。
+func (b *ApiBuilder) WithScope(scope string) *ApiBuilder {
+	if b.registeredRouter != nil {
+		b.registeredRouter.Scope = scope
+	}
+	return b
+}
+
+// WithParameters 设置接口文档中的显式参数。
+func (b *ApiBuilder) WithParameters(parameters ...ApiParameter) *ApiBuilder {
+	if b.registeredRouter != nil {
+		b.registeredRouter.Parameters = append(b.registeredRouter.Parameters, parameters...)
 	}
 	return b
 }
@@ -217,6 +242,16 @@ func RegisterPostApi[Req any, Resp any](
 	return registerTypedApiRouter(t, "POST", path, handler, apiName, errors...)
 }
 
+func RegisterPostNoRequestApi[Resp any](
+	t interfaces.EndpointType,
+	path string,
+	handler func(c *pin.Context) (response Resp, err *usererrors.Error),
+	apiName string,
+	errors ...*usererrors.Error,
+) *ApiBuilder {
+	return registerNoRequestRouter(t, "POST", path, handler, apiName, errors...)
+}
+
 // 注册PUT API（需要请求体）
 func RegisterPutApi[Req any, Resp any](
 	t interfaces.EndpointType,
@@ -263,7 +298,14 @@ func (e *Endpoint) HandleApiRequest(c *pin.Context) error {
 
 	// 遍历已注册的API路由
 	for _, router := range e.apilist {
-		if router.Method == method && router.Path == path {
+		pathParams, pathMatches := matchAPIPath(router.Path, path)
+		if router.Method == method && pathMatches {
+			for name, value := range pathParams {
+				c.Params = append(c.Params, gin.Param{Key: name, Value: value})
+			}
+			if router.Scope != "" && !applicationHasScope(c, router.Scope) {
+				return usererrors.New("openapi.scope_denied", "Application does not have permission to call this endpoint")
+			}
 			// 解析请求体
 			var request interface{}
 			if router.Request != nil {
@@ -295,9 +337,45 @@ func (e *Endpoint) HandleApiRequest(c *pin.Context) error {
 				return err
 			}
 
-			return c.Render(response)
+			successStatus := 200
+			if status, exists := c.Get("openapi_success_status"); exists {
+				successStatus = status.(int)
+			}
+			return c.RenderResponse(&pin.Response{Data: response}, successStatus)
 		}
 	}
 
 	return usererrors.New("endpoint_not_found", "API endpoint not found")
+}
+
+func matchAPIPath(pattern, actual string) (map[string]string, bool) {
+	patternSegments := strings.Split(strings.Trim(pattern, "/"), "/")
+	actualSegments := strings.Split(strings.Trim(actual, "/"), "/")
+	if len(patternSegments) != len(actualSegments) {
+		return nil, false
+	}
+	parameters := map[string]string{}
+	for index, segment := range patternSegments {
+		if strings.HasPrefix(segment, ":") {
+			parameters[strings.TrimPrefix(segment, ":")] = actualSegments[index]
+			continue
+		}
+		if segment != actualSegments[index] {
+			return nil, false
+		}
+	}
+	return parameters, true
+}
+
+func applicationHasScope(c *pin.Context, required string) bool {
+	application, exists := c.Get("application")
+	if !exists {
+		return false
+	}
+	for _, scope := range application.(interfaces.ApplicationInfo).GetScopes() {
+		if scope == required {
+			return true
+		}
+	}
+	return false
 }

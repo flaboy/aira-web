@@ -13,9 +13,12 @@ import (
 
 func HandleRequest(c *pin.Context) error {
 	endpointName := c.Param("endpoint")
+	return HandleEndpointRequest(c, interfaces.EndpointType(endpointName))
+}
 
-	// 获取端点
-	endpoint := GetEndpoint(interfaces.EndpointType(endpointName))
+// HandleEndpointRequest 处理绑定到指定端点的请求。
+func HandleEndpointRequest(c *pin.Context, endpointType interfaces.EndpointType) error {
+	endpoint := findEndpoint(endpointType)
 	if endpoint == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "endpoint not found"})
 		return nil
@@ -23,7 +26,16 @@ func HandleRequest(c *pin.Context) error {
 
 	// 检查认证
 	if err := endpoint.checkAuth(c); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{"code": "openapi.invalid_credentials", "message": "Invalid credentials or inactive application"}})
+		return nil
+	}
+	allowed, err := appRepo.AllowRequest(c.Request.Context(), c.MustGet("application_database_id").(uint))
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": gin.H{"code": "openapi.rate_limited", "message": "Application request limit exceeded"}})
+		return nil
 	}
 
 	return endpoint.HandleApiRequest(c)
@@ -59,14 +71,16 @@ func (e *Endpoint) checkAuth(c *pin.Context) error {
 		return errors.New("invalid credentials or inactive application")
 	}
 
-	// 更新最后使用时间（异步执行，避免阻塞请求）
-	go func() {
-		app.UpdateLastUsed()
-	}()
-
 	// 将应用信息存储到上下文中，供后续处理使用
 	c.Set("application", app)
 	c.Set("application_id", app.GetID())
+	c.Set("application_database_id", app.GetDatabaseID())
+	c.Set("application_user_id", app.GetUserID())
+	c.Set("application_business_profile_id", app.GetBusinessProfileID())
+	c.Set("application_scopes", app.GetScopes())
+	if err := app.UpdateLastUsed(); err != nil {
+		return err
+	}
 
 	return nil
 }

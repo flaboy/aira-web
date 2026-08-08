@@ -5,8 +5,8 @@ type DeveloperService interface {
 	// 应用管理
 	GetApplications(userID uint) ([]ApplicationInfo, error)
 	GetApplication(appID string, userID uint) (ApplicationInfo, error)
-	CreateApplication(userID uint, name, description string) (ApplicationInfo, error)
-	UpdateApplication(appID string, userID uint, name, description, status string) (ApplicationInfo, error)
+	CreateApplication(userID uint, name, description, businessProfileID string) (ApplicationInfo, error)
+	UpdateApplication(appID string, userID uint, name, description, status, businessProfileID string) (ApplicationInfo, error)
 	DeleteApplication(appID string, userID uint) error
 	RegenerateSecret(appID string, userID uint) (ApplicationInfo, error)
 

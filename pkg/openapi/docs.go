@@ -40,6 +40,7 @@ type ApiEndpoint struct {
 	Errors      []apiError     `json:"errors,omitempty"`
 	Parameters  []ApiParameter `json:"parameters,omitempty"`
 	Tags        []string       `json:"tags,omitempty"`
+	Scope       string         `json:"scope,omitempty"`
 }
 
 // ApiSchema represents data structure information
@@ -98,7 +99,9 @@ func (e *Endpoint) generateEndpointDoc(router ApiRouter) ApiEndpoint {
 		Parameters:  e.extractPathParameters(router.Path),
 		Tags:        extractTags(router.Path),
 		Errors:      make([]apiError, 0),
+		Scope:       router.Scope,
 	}
+	endpoint.Parameters = append(endpoint.Parameters, router.Parameters...)
 
 	for _, err := range router.Errors {
 		endpoint.Errors = append(endpoint.Errors, apiError{

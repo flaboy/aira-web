@@ -1,8 +1,14 @@
 package interfaces
 
+import "context"
+
 // ApplicationInfo 应用信息接口
 type ApplicationInfo interface {
 	GetID() string
+	GetDatabaseID() uint
+	GetUserID() uint
+	GetBusinessProfileID() uint
+	GetScopes() []string
 	GetClientID() string
 	GetClientSecret() string
 	GetStatus() string
@@ -14,6 +20,7 @@ type ApplicationInfo interface {
 // ApplicationRepository 应用仓储接口
 type ApplicationRepository interface {
 	FindByCredentials(clientID, clientSecret string, endpointType EndpointType, status string) (ApplicationInfo, error)
+	AllowRequest(ctx context.Context, applicationID uint) (bool, error)
 }
 
 // EventSubscriptionInfo 事件订阅信息接口

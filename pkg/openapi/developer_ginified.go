@@ -75,14 +75,15 @@ func (h *DeveloperAPIHandler) handleCreateApp(c *pin.Context) error {
 	userID := c.MustGet("user_id").(uint)
 
 	var form struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
+		Name              string `json:"name" binding:"required"`
+		Description       string `json:"description"`
+		BusinessProfileID string `json:"business_profile_id"`
 	}
 	if err := c.BindJSON(&form); err != nil {
 		return usererrors.New("Invalid request body")
 	}
 
-	app, err := service.CreateApplication(userID, form.Name, form.Description)
+	app, err := service.CreateApplication(userID, form.Name, form.Description, form.BusinessProfileID)
 	if err != nil {
 		return usererrors.New("Failed to create application: " + err.Error())
 	}
@@ -107,15 +108,16 @@ func (h *DeveloperAPIHandler) handleUpdateApp(c *pin.Context) error {
 	appID := routes.GetParam(c, "id")
 
 	var form struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		Status      string `json:"status"`
+		Name              string `json:"name"`
+		Description       string `json:"description"`
+		Status            string `json:"status"`
+		BusinessProfileID string `json:"business_profile_id"`
 	}
 	if err := c.BindJSON(&form); err != nil {
 		return usererrors.New("Invalid request body")
 	}
 
-	app, err := service.UpdateApplication(appID, userID, form.Name, form.Description, form.Status)
+	app, err := service.UpdateApplication(appID, userID, form.Name, form.Description, form.Status, form.BusinessProfileID)
 	if err != nil {
 		return usererrors.New("Failed to update application: " + err.Error())
 	}
