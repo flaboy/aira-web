@@ -22,6 +22,7 @@ func (handlerTestApplication) GetID() string              { return "app_test" }
 func (handlerTestApplication) GetDatabaseID() uint        { return 7 }
 func (handlerTestApplication) GetUserID() uint            { return 11 }
 func (handlerTestApplication) GetBusinessProfileID() uint { return 22 }
+func (handlerTestApplication) GetShopID() uint            { return 33 }
 func (a handlerTestApplication) GetScopes() []string      { return a.scopes }
 func (handlerTestApplication) GetClientID() string        { return "client_test" }
 func (handlerTestApplication) GetClientSecret() string    { return "" }

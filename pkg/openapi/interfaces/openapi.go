@@ -7,6 +7,7 @@ type ApplicationInfo interface {
 	GetID() string
 	GetDatabaseID() uint
 	GetUserID() uint
+	GetShopID() uint
 	GetBusinessProfileID() uint
 	GetScopes() []string
 	GetClientID() string

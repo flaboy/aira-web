@@ -76,6 +76,7 @@ func (e *Endpoint) checkAuth(c *pin.Context) error {
 	c.Set("application_id", app.GetID())
 	c.Set("application_database_id", app.GetDatabaseID())
 	c.Set("application_user_id", app.GetUserID())
+	c.Set("application_shop_id", app.GetShopID())
 	c.Set("application_business_profile_id", app.GetBusinessProfileID())
 	c.Set("application_scopes", app.GetScopes())
 	if err := app.UpdateLastUsed(); err != nil {
